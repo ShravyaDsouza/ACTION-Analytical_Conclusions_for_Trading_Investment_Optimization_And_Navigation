@@ -410,6 +410,8 @@ public class PortfolioTable extends JPanel {
                     prices.add(obj.get("close").getAsDouble());
                 }
             }
+            Collections.reverse(prices);
+            System.out.println("First: " + prices.get(0) + ", Last: " + prices.get(prices.size()-1));
         } catch (Exception e) {
             e.printStackTrace();
         }

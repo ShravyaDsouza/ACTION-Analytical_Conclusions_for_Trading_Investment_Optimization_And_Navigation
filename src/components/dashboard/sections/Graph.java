@@ -17,6 +17,7 @@ import java.io.InputStreamReader;
 import java.sql.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.*;
 import java.util.List;
 
@@ -351,7 +352,7 @@ public class Graph extends JPanel {
 
         ProcessBuilder pb = new ProcessBuilder(
                 "/Users/shravyadsouza/.virtualenvs/Stock/bin/python",
-                "/Users/shravyadsouza/IdeaProjects/Stock/src/services/predict_lstm.py",
+                "/Users/shravyadsouza/IdeaProjects/Stock/src/services/predict_lstm1.py",
                 currentStockSymbol,
                 range
         );
@@ -396,24 +397,21 @@ public class Graph extends JPanel {
                     double predictedClose = obj.get("predicted_close").getAsDouble();
                     System.out.println("[DEBUG] Parsed prediction - Date: " + dateStr + ", Predicted Close: " + predictedClose);
 
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                    LocalDate dt = LocalDate.parse(dateStr, formatter).plusDays(1);
+                   DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss]");
 
-                    switch (range) {
-                        case "1D":
-                            predictedSeries.addOrUpdate(new Minute(0, 0, dt.getDayOfMonth(), dt.getMonthValue(), dt.getYear()), predictedClose);
-                            break;
-                        case "1M":
-                        case "3M":
-                        case "1Y":
-                        case "2Y":
-                        case "5Y":
-                             predictedSeries.addOrUpdate(new Day(dt.getDayOfMonth(), dt.getMonthValue(), dt.getYear()), predictedClose);
-                            break;
-                        default:
-                            predictedSeries.addOrUpdate(new Day(dt.getDayOfMonth(), dt.getMonthValue(), dt.getYear()), predictedClose);
-                            break;
-                    }
+                        if (range.equals("1D")) {
+                            LocalDateTime dt = LocalDateTime.parse(dateStr, formatter);
+                            predictedSeries.addOrUpdate(
+                                new Minute(dt.getMinute(), dt.getHour(), dt.getDayOfMonth(), dt.getMonthValue(), dt.getYear()),
+                                predictedClose
+                            );
+                        } else {
+                            LocalDate dt = LocalDate.parse(dateStr.substring(0, 10));
+                            predictedSeries.addOrUpdate(
+                                    new Day(dt.getDayOfMonth(), dt.getMonthValue(), dt.getYear()),
+                                    predictedClose
+                            );
+                        }
                 } catch (Exception parseEx) {
                     System.err.println("[ERROR] Failed to parse date or add point: " + parseEx.getMessage());
                     parseEx.printStackTrace();
@@ -550,15 +548,17 @@ public class Graph extends JPanel {
         renderer.setSeriesShapesVisible(0, true);
         renderer.setSeriesShape(0, new Ellipse2D.Double(-2.5, -2.5, 5, 5));
 
-        renderer.setSeriesPaint(1, Color.ORANGE);
+        renderer.setSeriesPaint(1, new Color(255, 165, 0, 180)); // translucent orange
         renderer.setSeriesStroke(1, new BasicStroke(
-        2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0,
-        new float[]{5.0f, 5.0f}, 0.0f)); // Dashed Line
-
-        renderer.setSeriesShapesVisible(1, true); // <-- Make shapes visible
-        renderer.setSeriesShape(1, new Ellipse2D.Double(-4.0, -4.0, 8.0, 8.0)); // Larger dot size
+            1.8f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL, 0,
+            new float[]{6.0f, 6.0f}, 0.0f)); // smoother dash
+        renderer.setSeriesShapesVisible(1, false); // turn off shape clutter
+        //renderer.setSeriesShape(1, new Ellipse2D.Double(-4.0, -4.0, 8.0, 8.0)); // Larger dot size
+        renderer.setSeriesShapesVisible(1, false);
 
         plot.setRenderer(renderer);
+        chart.setAntiAlias(true);
+        chart.setTextAntiAlias(true);
 
         plot.setBackgroundPaint(Color.WHITE);
         plot.setDomainGridlinePaint(new Color(220, 220, 220));
