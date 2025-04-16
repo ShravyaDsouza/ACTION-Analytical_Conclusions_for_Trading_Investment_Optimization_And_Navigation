@@ -377,12 +377,27 @@ The main dashboard provides a **comprehensive and interactive** experience for u
 
 
 ## 9. Future Enhancements
-* Market Alignment: Extend compatibility and analytics to include Indian stock markets (e.g., NSE, BSE).
-* Expanded Stock Universe: Scale beyond the initial 15 stocks to support a wider range of tickers across industries and geographies.
-* Advanced Graphing: Integrate enhanced graph visualizations combining:
-* Real-time prices
-* LSTM-predicted values
-* Broader market indices and sector trends
-* Intelligent Alerts: Notify users of significant stock movements (surges, dips, volatility spikes).
-* Social Sentiment Signals: Leverage crowd sentiment analytics (e.g., user buy/sell patterns or Twitter/X buzz) to guide investment decisions.
-* Custom Report Exports: Allow users to download personalized reports in PDF/CSV formats for portfolio analysis or tax filing.
+
+* **Market Alignment**  
+  Extend compatibility and analytics to include Indian stock markets (e.g., NSE, BSE).
+
+* **Expanded Stock Universe**  
+  Scale beyond the initial 15 stocks to support a wider range of tickers across industries and geographies.
+
+* **Advanced Graphing**  
+  Integrate enhanced graph visualizations combining:
+  - Real-time prices  
+  - LSTM-predicted values  
+  - Broader market indices and sector trends  
+
+* **Intelligent Alerts**  
+  Notify users of significant stock movements such as:
+  - Sudden price surges or dips  
+  - Volatility spikes  
+  - Unusual trading volume  
+
+* **Social Sentiment Signals**  
+  Leverage crowd sentiment analytics (e.g., user buy/sell patterns, Twitter/X trends) to guide investment decisions.
+
+* **Custom Report Exports**  
+  Allow users to download personalized portfolio reports in formats like PDF/CSV for analysis or tax filing.
