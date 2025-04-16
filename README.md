@@ -15,20 +15,21 @@ ACTION is a platform designed to provide users with actionable insights for opti
 --------
 
 ## 1. Clone the Repository
-`
+```
 git clone https://github.com/ShravyaDsouza/ACTION-Analytical_Conclusions_for_Trading_Investment_Optimization_And_Navigation.git
 cd ACTION
-`
+```
 
 ## 2. Python Environment Setup
 * Navigate to the src/services folder and create a virtual environment:
+```
 cd src/services
 python3 -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
+```
 
 * Install Required Packages
-pip install -r requirements.txt
+```pip install -r requirements.txt```
 
 
 * requirements.txt
