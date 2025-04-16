@@ -59,27 +59,147 @@ public class PortfolioTable extends JPanel {
         scrollPane.setBorder(null);
         add(scrollPane, BorderLayout.CENTER);
         // === Action Buttons ===
-JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-actionPanel.setBackground(Color.WHITE);
+        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        actionPanel.setBackground(Color.WHITE);
 
-JButton addButton = new JButton("➕");
-JButton removeButton = new JButton("🗑");
+        JButton addButton = new JButton("➕");
+        JButton removeButton = new JButton("🗑");
 
-addButton.setBackground(new Color(98, 0, 238));
-addButton.setForeground(Color.WHITE);
-addButton.setFocusPainted(false);
-addButton.setOpaque(true);
+        addButton.setBackground(new Color(98, 0, 238));
+        addButton.setForeground(Color.WHITE);
+        addButton.setFocusPainted(false);
+        addButton.setOpaque(true);
 
-removeButton.setBackground(Color.RED);
-removeButton.setForeground(Color.WHITE);
-removeButton.setFocusPainted(false);
-removeButton.setOpaque(true);
+        removeButton.setBackground(Color.RED);
+        removeButton.setForeground(Color.WHITE);
+        removeButton.setFocusPainted(false);
+        removeButton.setOpaque(true);
 
-actionPanel.add(addButton);
-actionPanel.add(removeButton);
+        actionPanel.add(addButton);
+        actionPanel.add(removeButton);
 
-add(actionPanel, BorderLayout.SOUTH);
+        add(actionPanel, BorderLayout.SOUTH);
+        addButton.addActionListener(e -> {
+            JTextField symbolField = new JTextField();
+            JTextField companyField = new JTextField();
+            JTextField sharesField = new JTextField();
+            JTextField avgPriceField = new JTextField();
 
+            JPanel panel = new JPanel(new GridLayout(4, 2));
+            panel.add(new JLabel("Stock Symbol:"));
+            panel.add(symbolField);
+            panel.add(new JLabel("Company Name:"));
+            panel.add(companyField);
+            panel.add(new JLabel("Shares Owned:"));
+            panel.add(sharesField);
+            panel.add(new JLabel("Average Price:"));
+            panel.add(avgPriceField);
+
+            int result = JOptionPane.showConfirmDialog(null, panel, "Add to Holdings", JOptionPane.OK_CANCEL_OPTION);
+            if (result == JOptionPane.OK_OPTION) {
+                try {
+                    String symbol = symbolField.getText().trim().toUpperCase();
+                    String company = companyField.getText().trim();
+                    String sharesStr = sharesField.getText().trim();
+                    String avgPriceStr = avgPriceField.getText().trim();
+
+                    if (symbol.isEmpty() || company.isEmpty() || sharesStr.isEmpty() || avgPriceStr.isEmpty()) {
+                        JOptionPane.showMessageDialog(this, "Fields cannot be empty.");
+                        return;
+                    }
+
+                    double latest = getLatestPrice(symbol);
+                    if (latest == 0.0) {
+                        JOptionPane.showMessageDialog(this, "Invalid or unrecognized stock symbol.");
+                        return;
+                    }
+
+                    double shares = Double.parseDouble(sharesStr);
+                    double avgPrice = Double.parseDouble(avgPriceStr);
+
+                    try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/stocks", "root", "shravya2004")) {
+                        PreparedStatement checkStmt = conn.prepareStatement(
+                            "SELECT COUNT(*) FROM holdings WHERE user_id = ? AND stock_symbol = ?");
+                        checkStmt.setInt(1, userId);
+                        checkStmt.setString(2, symbol);
+                        ResultSet rs = checkStmt.executeQuery();
+                        rs.next();
+                        if (rs.getInt(1) > 0) {
+                            JOptionPane.showMessageDialog(this, "Stock already exists in your holdings.");
+                            return;
+                        }
+                        checkStmt.close();
+
+                        PreparedStatement stmt = conn.prepareStatement(
+                            "INSERT INTO holdings (user_id, stock_symbol, shares_owned, average_price) VALUES (?, ?, ?, ?)");
+                        stmt.setInt(1, userId);
+                        stmt.setString(2, symbol);
+                        stmt.setDouble(3, shares);
+                        stmt.setDouble(4, avgPrice);
+                        stmt.executeUpdate();
+                        stmt.close();
+
+                        refreshTable();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(this, "Error adding to holdings.");
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Invalid number format in shares or price.");
+                } catch (Exception outerEx) {
+                    outerEx.printStackTrace();
+                }
+            }
+        });
+
+        removeButton.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row != -1) {
+                String symbol = model.getValueAt(row, 0).toString();
+                try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/stocks", "root", "shravya2004")) {
+                    PreparedStatement stmt = conn.prepareStatement(
+                        "DELETE FROM holdings WHERE user_id = ? AND stock_symbol = ?");
+                    stmt.setInt(1, userId);
+                    stmt.setString(2, symbol);
+                    stmt.executeUpdate();
+                    stmt.close();
+                    refreshTable();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(this, "Error removing from holdings.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Please select a row to remove.");
+            }
+        });
+    }
+
+     private void refreshTable() {
+        model.setDataVector(fetchPortfolioData(), columns);
+        // Reapply header style
+        DefaultTableCellRenderer styledHeader = new DefaultTableCellRenderer() {
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus, int row, int column) {
+                JLabel lbl = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                lbl.setHorizontalAlignment(SwingConstants.CENTER);
+                lbl.setFont(new Font("SansSerif", Font.BOLD, 14));
+                lbl.setForeground(new Color(98, 0, 238));
+                lbl.setBackground(new Color(245, 245, 255));
+                lbl.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(180, 180, 255)));
+                return lbl;
+            }
+        };
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setHeaderRenderer(styledHeader);
+        }
+        table.getColumn("5-Day Chart").setCellRenderer((tbl, value, isSelected, hasFocus, row, col) -> {
+            if (value instanceof JPanel panel) {
+                panel.setBackground(isSelected ? new Color(220, 220, 255) : Color.WHITE);
+                return panel;
+            }
+            return new JLabel("N/A");
+        });
+        table.repaint();
     }
 
     private JTable createStyledTable(DefaultTableModel model) {
