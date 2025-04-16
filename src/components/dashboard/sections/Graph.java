@@ -333,7 +333,7 @@ public class Graph extends JPanel {
                     LocalDate dt = LocalDate.parse(dateStr, formatter);
                     switch (range) {
                         case "1M", "3M" -> actualSeries.addOrUpdate(new Day(dt.getDayOfMonth(), dt.getMonthValue(), dt.getYear()), close);
-                        case "1Y", "2Y", "5Y" -> actualSeries.addOrUpdate(new Month(dt.getMonthValue(), dt.getYear()), close);
+                        case "1Y", "2Y", "5Y" -> actualSeries.addOrUpdate(new Day(dt.getDayOfMonth(), dt.getMonthValue(), dt.getYear()), close);
                     }
                 }
             }
@@ -449,7 +449,7 @@ public class Graph extends JPanel {
         renderer.setSeriesPaint(0, new Color(98, 0, 238));
         renderer.setSeriesStroke(0, new BasicStroke(2.0f));
         renderer.setSeriesShapesVisible(0, true);
-        renderer.setSeriesShape(0, new Ellipse2D.Double(-2.5, -2.5, 5, 5));
+        renderer.setSeriesShape(0, new Ellipse2D.Double(-0.5, -0.5, 1, 1));
 
         renderer.setSeriesPaint(1, new Color(255, 165, 0, 180)); 
         renderer.setSeriesStroke(1, new BasicStroke(
