@@ -51,14 +51,17 @@ python3 --version
 
 **Database:**  MySQL
 #### Launch
+```
 mysql -u root -p
+```
 
-sql
+```mysql
 CREATE DATABASE IF NOT EXISTS stocks;
+```
 
-sql 
+```mysql 
 USE stocks;
-
+```
 
 **Tables:**
 
@@ -72,7 +75,7 @@ USE stocks;
     * mobile_no (VARCHAR(15), NOT NULL): User's mobile number.
     * password_hash (VARCHAR(255), NOT NULL): Hashed password for secure authentication.
 
-sql
+```mysql
 CREATE TABLE users (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
@@ -80,7 +83,7 @@ CREATE TABLE users (
     mobile_no VARCHAR(15) NOT NULL,
     password_hash VARCHAR(255) NOT NULL
 );
-
+```
 
 ### holdings
 * **Purpose:** Tracks user's stock holdings.
@@ -94,7 +97,7 @@ CREATE TABLE users (
     * equity_value (DECIMAL(12, 2)): Calculated real time (optional to save to the database).
     * Foreign Key: user_id references users(user_id) with ON DELETE CASCADE.
 
-sql
+```mysql
 CREATE TABLE holdings (
     holding_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
@@ -105,7 +108,7 @@ CREATE TABLE holdings (
     FOREIGN KEY (user_id) REFERENCES users(user_id)
         ON DELETE CASCADE
 );
-
+```
 
 ### watchlist
 * **Purpose:** Stores user's watchlist of stocks.
@@ -116,7 +119,7 @@ CREATE TABLE holdings (
     * added_on (DATETIME, DEFAULT CURRENT_TIMESTAMP): Timestamp when the stock was added to the watchlist.
     * Foreign Key: user_id references users(user_id) with ON DELETE CASCADE.
 
-sql
+```mysql
 CREATE TABLE watchlist (
     watchlist_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
@@ -126,10 +129,11 @@ CREATE TABLE watchlist (
     FOREIGN KEY (user_id) REFERENCES users(user_id)
         ON DELETE CASCADE
 );
+```
 
 ### stock_data
 * **Purpose:** Stores the historic values csv file produced from historic_data.ipynb (optional).
-mysql
+```mysql
 DROP TABLE IF EXISTS stock_data;
 CREATE TABLE stock_data (
     symbol VARCHAR(10),
@@ -140,13 +144,14 @@ CREATE TABLE stock_data (
     Close FLOAT,
     Volume BIGINT
 );
+```
 
 ### Index creation for Optimized Performance (Optional)
-mysql
+```mysql
 CREATE INDEX idx_symbol ON stock_data(symbol);
 ALTER TABLE stock_data ADD COLUMN year INT GENERATED ALWAYS AS (YEAR(Date)) STORED;
 CREATE INDEX idx_symbol_year ON stock_data(symbol, year);
-
+```
 
 #### Kindly refer the Yahoo Finance
 API for integration in the project via Java: https://mvnrepository.com/artifact/com.yahoofinance-api/YahooFinanceAPI
