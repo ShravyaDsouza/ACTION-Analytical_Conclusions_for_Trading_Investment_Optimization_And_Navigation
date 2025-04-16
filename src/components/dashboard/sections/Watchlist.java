@@ -24,7 +24,6 @@ public class Watchlist extends JPanel {
         setLayout(new BorderLayout());
         setBackground(Color.WHITE);
 
-        // === Header ===
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(Color.WHITE);
         headerPanel.setBorder(new EmptyBorder(12, 15, 4, 15));
@@ -92,7 +91,7 @@ public class Watchlist extends JPanel {
                         return;
                     }
 
-                    try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/stocks", "root", "shravya2004")) {
+                    try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/stocks", "username", "passsword")) {
                         PreparedStatement checkStmt = conn.prepareStatement(
                             "SELECT COUNT(*) FROM watchlist WHERE user_id = ? AND stock_symbol = ?");
                         checkStmt.setInt(1, userId);
@@ -128,7 +127,7 @@ public class Watchlist extends JPanel {
             int row = table.getSelectedRow();
             if (row != -1) {
                 String symbol = model.getValueAt(row, 0).toString();
-                try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/stocks", "root", "shravya2004")) {
+                try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/stocks", "username", "password")) {
                     PreparedStatement stmt = conn.prepareStatement(
                         "DELETE FROM watchlist WHERE user_id = ? AND stock_symbol = ?");
                     stmt.setInt(1, userId);
@@ -246,7 +245,7 @@ public class Watchlist extends JPanel {
 
     private Object[][] generateWatchlistRows() {
     List<Object[]> rows = new ArrayList<>();
-    try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/stocks", "root", "shravya2004")) {
+    try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/stocks", "username", "password")) {
         PreparedStatement stmt = conn.prepareStatement("SELECT stock_symbol FROM watchlist WHERE user_id = ?");
         stmt.setInt(1, userId);
         ResultSet rs = stmt.executeQuery();
@@ -277,8 +276,8 @@ public class Watchlist extends JPanel {
     private String[] fetchLatestPriceFromAPI(String symbol) {
         try {
             ProcessBuilder pb = new ProcessBuilder(
-                    "/Users/shravyadsouza/.virtualenvs/Stock/bin/python",
-                    "/Users/shravyadsouza/IdeaProjects/Stock/src/services/stocks_api.py", symbol, "1D"
+                    "../.virtualenvs/Stock/bin/python",
+                    "../IdeaProjects/Stock/src/services/stocks_api.py", symbol, "1D"
             );
             pb.redirectErrorStream(true);
             Process p = pb.start();
@@ -309,7 +308,7 @@ public class Watchlist extends JPanel {
     }
     private double getPriceChange(String symbol) {
         try {
-            ProcessBuilder pb = new ProcessBuilder("/Users/shravyadsouza/.virtualenvs/Stock/bin/python", "src/services/stocks_api.py", symbol, "1D");
+            ProcessBuilder pb = new ProcessBuilder("../.virtualenvs/Stock/bin/python", "src/services/stocks_api.py", symbol, "1D");
             pb.redirectErrorStream(true);
             Process p = pb.start();
 
@@ -370,7 +369,7 @@ public class Watchlist extends JPanel {
     private List<Double> get5DayClosePrices(String symbol) {
         List<Double> prices = new ArrayList<>();
         try {
-            ProcessBuilder pb = new ProcessBuilder("/Users/shravyadsouza/.virtualenvs/Stock/bin/python", "src/services/stocks_api.py", symbol, "5D");
+            ProcessBuilder pb = new ProcessBuilder("../.virtualenvs/Stock/bin/python", "src/services/stocks_api.py", symbol, "5D");
             pb.redirectErrorStream(true);
             Process p = pb.start();
 

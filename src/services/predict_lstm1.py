@@ -29,7 +29,7 @@ def get_prediction(symbol, range_code):
     period, interval = interval_map[range_code]
     model_tag = interval.replace("m", "min").replace("h", "hour").replace("d", "day").replace("wk", "week")
 
-    model_path = f"/Users/shravyadsouza/IdeaProjects/Stock/models/{symbol}_model.keras"
+    model_path = f"../IdeaProjects/Stock/models/{symbol}_model.keras"
     try:
         model = keras.models.load_model(model_path)
     except Exception as e:
@@ -100,13 +100,12 @@ def get_prediction(symbol, range_code):
                 "predicted_close": round(float(pred_val), 2)
             })
 
-        # === FUTURE PREDICTIONS ===
         input_seq = scaled[-lookback:].reshape(1, lookback, 1)
         if range_code == "1D":
-            steps = 4  # 1 hour ahead assuming 15min interval
+            steps = 4  
             step_interval = timedelta(minutes=15)
         else:
-            steps = 10  # 10 days
+            steps = 10 
             step_interval = timedelta(days=1)
 
         future_time = data.index[-1]

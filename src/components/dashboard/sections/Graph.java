@@ -172,7 +172,7 @@ public class Graph extends JPanel {
     double totalGainValue = 0.0;
     double todaysGainValue = 0.0;
 
-    try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/stocks", "root", "shravya2004")) {
+    try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/stocks", "username", "password")) {
             System.out.println("[DEBUG] Connected to MySQL database successfully.");
 
             PreparedStatement stmt = conn.prepareStatement("SELECT stock_symbol, shares_owned, average_price FROM holdings WHERE user_id = ?");
@@ -244,8 +244,8 @@ public class Graph extends JPanel {
     private String[] getLatestPrice(String symbol) {
         try {
             ProcessBuilder pb = new ProcessBuilder(
-                    "/Users/shravyadsouza/.virtualenvs/Stock/bin/python",
-                    "/Users/shravyadsouza/IdeaProjects/Stock/src/services/stocks_api.py", symbol, "1D"
+                    "../.virtualenvs/Stock/bin/python",
+                    "../IdeaProjects/Stock/src/services/stocks_api.py", symbol, "1D"
             );
             pb.redirectErrorStream(true);
             Process p = pb.start();
@@ -282,8 +282,8 @@ public class Graph extends JPanel {
         try {
             System.out.println("Launching stocks_api.py for " + currentStockSymbol + " with range " + range);
             ProcessBuilder pb = new ProcessBuilder(
-                    "/Users/shravyadsouza/.virtualenvs/Stock/bin/python",
-                    "/Users/shravyadsouza/IdeaProjects/Stock/src/services/stocks_api.py",
+                    "../.virtualenvs/Stock/bin/python",
+                    "../IdeaProjects/Stock/src/services/stocks_api.py",
                     currentStockSymbol,
                     range
             );
@@ -351,8 +351,8 @@ public class Graph extends JPanel {
         System.out.println("[DEBUG] Running LSTM prediction script for symbol: " + currentStockSymbol + ", range: " + range);
 
         ProcessBuilder pb = new ProcessBuilder(
-                "/Users/shravyadsouza/.virtualenvs/Stock/bin/python",
-                "/Users/shravyadsouza/IdeaProjects/Stock/src/services/predict_lstm1.py",
+                "../.virtualenvs/Stock/bin/python",
+                "../IdeaProjects/Stock/src/services/predict_lstm1.py",
                 currentStockSymbol,
                 range
         );
@@ -428,103 +428,6 @@ public class Graph extends JPanel {
     return predictedSeries;
 }
 
-    /*private TimeSeries createPredictedSeries(String range) {
-    TimeSeries predictedSeries = new TimeSeries(currentStockSymbol + " LSTM Prediction");
-
-    try {
-        System.out.println("[DEBUG] Running LSTM prediction script for symbol: " + currentStockSymbol + ", range: " + range);
-
-        ProcessBuilder pb = new ProcessBuilder(
-                "/Users/shravyadsouza/.virtualenvs/Stock/bin/python",
-                "/Users/shravyadsouza/IdeaProjects/Stock/src/services/predict_lstm.py",
-                currentStockSymbol,
-                range
-        );
-        pb.redirectErrorStream(true);
-        Process process = pb.start();
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        StringBuilder jsonBuilder = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            System.out.println("[PYTHON OUTPUT] " + line);
-            if (line.trim().startsWith("[")) {
-                jsonBuilder.append(line.trim());
-                break;
-            }
-        }
-
-        int exitCode = process.waitFor();
-        System.out.println("[DEBUG] Python process exited with code: " + exitCode);
-
-        String json = jsonBuilder.toString();
-        System.out.println("[DEBUG] Raw JSON output: " + json);
-
-        int start = json.indexOf("[");
-        int end = json.lastIndexOf("]");
-        if (start != -1 && end != -1 && end > start) {
-            json = json.substring(start, end + 1);
-        } else {
-            System.err.println("[ERROR] Invalid JSON array boundaries: start=" + start + ", end=" + end);
-            return predictedSeries;
-        }
-
-        JsonArray jsonArray = JsonParser.parseString(json).getAsJsonArray();
-        System.out.println("[DEBUG] Parsed JSON array size: " + jsonArray.size());
-
-        for (JsonElement el : jsonArray) {
-                JsonObject obj = el.getAsJsonObject();
-                String dateStr = obj.get("date").getAsString();
-                double predictedClose = obj.get("predicted_close").getAsDouble();
-
-                System.out.println("[DEBUG] Parsed prediction - Date: " + dateStr + ", Predicted Close: " + predictedClose);
-
-                try {
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                    LocalDate dt = LocalDate.parse(dateStr, formatter);
-                    predictedSeries.addOrUpdate(new Day(dt.getDayOfMonth(), dt.getMonthValue(), dt.getYear()), predictedClose);
-                } catch (Exception parseEx) {
-                    System.err.println("[ERROR] Failed to parse date or add point: " + parseEx.getMessage());
-                    parseEx.printStackTrace();
-                }
-            }
-        /*for (JsonElement el : jsonArray) {
-            JsonObject obj = el.getAsJsonObject();
-            String dateStr = obj.get("date").getAsString();
-            double predictedClose = obj.get("predicted_close").getAsDouble();
-
-            System.out.println("[DEBUG] Parsed prediction - Date: " + dateStr + ", Predicted Close: " + predictedClose);
-
-            try {
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                    LocalDate dt = LocalDate.parse(dateStr, formatter);
-                    switch (range) {
-                        case "1D":
-                            predictedSeries.addOrUpdate(new Minute(0, 0, dt.getDayOfMonth(), dt.getMonthValue(), dt.getYear()), predictedClose);
-                            break;
-                        case "1M":
-                        case "3M":
-                            predictedSeries.addOrUpdate(new Day(dt.getDayOfMonth(), dt.getMonthValue(), dt.getYear()), predictedClose);                            break;
-                        case "1Y":
-                        case "2Y":
-                        case "5Y":
-                            predictedSeries.addOrUpdate(new Month(dt.getMonthValue(), dt.getYear()), predictedClose);
-                            break;
-                    }
-                } catch (Exception parseEx) {
-                    System.err.println("[ERROR] Failed to parse date or add point: " + parseEx.getMessage());
-                    parseEx.printStackTrace();
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("[ERROR] Exception occurred during LSTM prediction parsing:");
-            e.printStackTrace();
-        }
-
-        System.out.println("[DEBUG] Total predicted points added: " + predictedSeries.getItemCount());
-        return predictedSeries;
-    }*/
-
    private TimeSeriesCollection createDataset(String range) {
     TimeSeriesCollection dataset = new TimeSeriesCollection();
     dataset.addSeries(createActualSeries(range));
@@ -548,12 +451,11 @@ public class Graph extends JPanel {
         renderer.setSeriesShapesVisible(0, true);
         renderer.setSeriesShape(0, new Ellipse2D.Double(-2.5, -2.5, 5, 5));
 
-        renderer.setSeriesPaint(1, new Color(255, 165, 0, 180)); // translucent orange
+        renderer.setSeriesPaint(1, new Color(255, 165, 0, 180)); 
         renderer.setSeriesStroke(1, new BasicStroke(
             1.8f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL, 0,
-            new float[]{6.0f, 6.0f}, 0.0f)); // smoother dash
-        renderer.setSeriesShapesVisible(1, false); // turn off shape clutter
-        //renderer.setSeriesShape(1, new Ellipse2D.Double(-4.0, -4.0, 8.0, 8.0)); // Larger dot size
+            new float[]{6.0f, 6.0f}, 0.0f)); 
+        renderer.setSeriesShapesVisible(1, false);
         renderer.setSeriesShapesVisible(1, false);
 
         plot.setRenderer(renderer);
@@ -576,16 +478,16 @@ public class Graph extends JPanel {
         if (range.equals("1Y")) {
             domainAxis.setDateFormatOverride(new java.text.SimpleDateFormat("MMM yyyy"));
             domainAxis.setTickUnit(new org.jfree.chart.axis.DateTickUnit(
-                org.jfree.chart.axis.DateTickUnitType.MONTH, 2)); // Show every 2nd month
+                org.jfree.chart.axis.DateTickUnitType.MONTH, 2)); 
         }
         else if (range.equals("2Y")) {
             domainAxis.setDateFormatOverride(new java.text.SimpleDateFormat("MMM yyyy"));
             domainAxis.setTickUnit(new org.jfree.chart.axis.DateTickUnit(
-                org.jfree.chart.axis.DateTickUnitType.MONTH, 3)); // Show every 4th month
+                org.jfree.chart.axis.DateTickUnitType.MONTH, 3)); 
         } else if (range.equals("5Y")) {
             domainAxis.setDateFormatOverride(new java.text.SimpleDateFormat("yyyy"));
             domainAxis.setTickUnit(new org.jfree.chart.axis.DateTickUnit(
-                org.jfree.chart.axis.DateTickUnitType.MONTH, 6)); // Show one year per tick
+                org.jfree.chart.axis.DateTickUnitType.MONTH, 6)); 
         }
         chart.getXYPlot().getRenderer().setDefaultToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
         chart.getTitle().setFont(new Font("SansSerif", Font.BOLD, 20));

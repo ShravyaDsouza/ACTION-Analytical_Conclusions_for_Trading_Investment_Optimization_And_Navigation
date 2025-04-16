@@ -117,7 +117,7 @@ public class PortfolioTable extends JPanel {
                     double shares = Double.parseDouble(sharesStr);
                     double avgPrice = Double.parseDouble(avgPriceStr);
 
-                    try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/stocks", "root", "shravya2004")) {
+                    try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/stocks", "username", "password")) {
                         PreparedStatement checkStmt = conn.prepareStatement(
                             "SELECT COUNT(*) FROM holdings WHERE user_id = ? AND stock_symbol = ?");
                         checkStmt.setInt(1, userId);
@@ -156,7 +156,7 @@ public class PortfolioTable extends JPanel {
             int row = table.getSelectedRow();
             if (row != -1) {
                 String symbol = model.getValueAt(row, 0).toString();
-                try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/stocks", "root", "shravya2004")) {
+                try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/stocks", "username", "password")) {
                     PreparedStatement stmt = conn.prepareStatement(
                         "DELETE FROM holdings WHERE user_id = ? AND stock_symbol = ?");
                     stmt.setInt(1, userId);
@@ -274,7 +274,7 @@ public class PortfolioTable extends JPanel {
 
     private Object[][] fetchPortfolioData() {
         List<Object[]> rows = new ArrayList<>();
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/stocks", "root", "shravya2004")) {
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/stocks", "username", "password")) {
             PreparedStatement stmt = conn.prepareStatement(
                 "SELECT stock_symbol, shares_owned, average_price FROM holdings WHERE user_id = ?");
             stmt.setInt(1, userId);
@@ -311,7 +311,7 @@ public class PortfolioTable extends JPanel {
 
     private double getLatestPrice(String symbol) {
         try {
-            ProcessBuilder pb = new ProcessBuilder("/Users/shravyadsouza/.virtualenvs/Stock/bin/python", "src/services/stocks_api.py", symbol, "1D");
+            ProcessBuilder pb = new ProcessBuilder("../.virtualenvs/Stock/bin/python", "src/services/stocks_api.py", symbol, "1D");
             pb.redirectErrorStream(true);
             Process p = pb.start();
 
@@ -334,7 +334,7 @@ public class PortfolioTable extends JPanel {
 
     private double getPriceChange(String symbol) {
         try {
-            ProcessBuilder pb = new ProcessBuilder("/Users/shravyadsouza/.virtualenvs/Stock/bin/python", "src/services/stocks_api.py", symbol, "1D");
+            ProcessBuilder pb = new ProcessBuilder("../.virtualenvs/Stock/bin/python", "src/services/stocks_api.py", symbol, "1D");
             pb.redirectErrorStream(true);
             Process p = pb.start();
 
@@ -395,7 +395,7 @@ public class PortfolioTable extends JPanel {
     private List<Double> get5DayClosePrices(String symbol) {
         List<Double> prices = new ArrayList<>();
         try {
-            ProcessBuilder pb = new ProcessBuilder("/Users/shravyadsouza/.virtualenvs/Stock/bin/python", "src/services/stocks_api.py", symbol, "5D");
+            ProcessBuilder pb = new ProcessBuilder("../.virtualenvs/Stock/bin/python", "src/services/stocks_api.py", symbol, "5D");
             pb.redirectErrorStream(true);
             Process p = pb.start();
 
