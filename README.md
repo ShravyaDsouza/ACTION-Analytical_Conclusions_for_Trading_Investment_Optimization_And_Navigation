@@ -17,7 +17,6 @@ ACTION is a platform designed to provide users with actionable insights for opti
 ## 1. Clone the Repository
 ```
 git clone https://github.com/ShravyaDsouza/ACTION-Analytical_Conclusions_for_Trading_Investment_Optimization_And_Navigation.git
-cd ACTION
 ```
 
 ## 2. Python Environment Setup
@@ -277,7 +276,8 @@ The app opens with a dramatic pixelated reveal, transitioning smoothly into the 
 #### 📊 Stock Dashboard Overview
 
 The main dashboard provides a **comprehensive and interactive** experience for users to manage their investments. Below is a breakdown of each section visible in the interface:
-<img width="1268" alt="Screenshot 2025-04-14 at 12 40 51 PM" src="https://github.com/user-attachments/assets/ab8b19bd-34cc-4fdc-9bcc-9627fe589d19" />
+<img width="1268" alt="Screenshot 2025-04-14 at 12 40 51 PM" src="![image](https://github.com/user-attachments/assets/c98b7c6c-4d0d-432d-af82-a79f8307813d)
+" />
 
 ---
 
