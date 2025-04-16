@@ -160,6 +160,7 @@ API for integration in the project via Java: https://mvnrepository.com/artifact/
 This is a Maven project. Java 17 is recommended.
 
 ### Structure
+```
 📁 ACTION/
 ├── .idea/                               # IntelliJ project config files
 ├── csv/                                 # Historic CSV files (2018–2025) fetched via historic_data.ipynb
@@ -200,7 +201,7 @@ This is a Maven project. Java 17 is recommended.
 │
 ├── pom.xml                              # Maven dependency file
 └── README.md                            # 📘 Project documentation (this file)
-
+```
 
 ### How to Run the App
 * Open project in IntelliJ IDEA or VS Code.
